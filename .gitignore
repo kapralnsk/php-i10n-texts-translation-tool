@@ -1,3 +1,5 @@
 venv
 .vscode
 main.php
+*.pyc
+__pycache__
