@@ -9,7 +9,7 @@ import util
 app = Flask(__name__)
 
 @app.route("/")
-def hello_world():
+def main():
     return render_template('index.html')
 
 @app.route("/unpack/", methods=['POST'])
@@ -28,7 +28,7 @@ def pack():
     if not request.json:
         return
     source = request.json['source']
-    translated_texts = json.loads(request.json['translated_texts'])
+    translated_texts = request.json['translated_texts']
     with open('input.php', 'w') as f:
         f.write(source)
     res = {"res": util.pack('input.php', translated_texts)}

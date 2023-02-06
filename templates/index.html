@@ -13,7 +13,7 @@
 <body>
     <label></label>
     <textarea type="text" id="source" placeholder="Source PHP"></textarea>
-    <textarea id="output" placeholder="Output texts"></textarea>
+    <textarea id="output" placeholder="Output texts" style="white-space: pre-wrap"></textarea>
     <textarea type="text" id="translated" placeholder="Translated texts"></textarea>
     <textarea id="translatedsource" placeholder="Translated PHP"></textarea>
     <script>
@@ -21,20 +21,21 @@
             $.post(
                 {
                     url: '/unpack/',
-                    dataType: "json",
+                    dataType: "text",
                     contentType: "application/json",
                     data: JSON.stringify({ source: event.target.value })
                 }).done(function (data) {
-                    $("#output").val(JSON.stringify(data))
+                    $("#output").val(JSON.parse(data).join("\n"))
                 })
         });
         $("#translated").on("input", function (event) {
+            var payload = event.target.value.split("\n");
             $.post(
                 {
                     url: '/pack/',
                     dataType: "json",
                     contentType: "application/json",
-                    data: JSON.stringify({ source: $("#source").val(), translated_texts: event.target.value })
+                    data: JSON.stringify({ source: $("#source").val(), translated_texts: payload })
                 }).done(function (data) {
                     $("#translatedsource").val(data['res'])
                 })
