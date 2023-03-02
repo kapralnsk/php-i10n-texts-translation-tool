@@ -1,5 +1,6 @@
 from typing import List, Dict
 from collections import OrderedDict
+from copy import deepcopy
 import json
 
 from php_whisperer import read_php, generate_php
@@ -7,8 +8,8 @@ from php_whisperer import read_php, generate_php
 def load_text_from_dict(d, texts) -> List:
     for v in d.values():
         if type(v) == dict:
-            v = load_text_from_dict(v, texts)
-            texts.append(v)
+            load_text_from_dict(v, texts)
+            continue
         if type(v) == list:
             for i in v:
                 if type(i) == dict:
@@ -21,10 +22,11 @@ def load_text_from_dict(d, texts) -> List:
 def pack_text_to_dict(d, texts) -> Dict:
     for k, v in d.items():
         if type(v) == dict:
-            d[k] = pack_text_to_dict(v)
+            pack_text_to_dict(v, texts)
+            continue
         if type(v) == list:
             if type(v[0]) == dict:
-                d[k] = [pack_text_to_dict(_, texts) for _ in v]
+                [pack_text_to_dict(_, texts) for _ in v]
             else:
                 d[k] = pack_texts_to_list(texts, len(v))
         else:
@@ -42,7 +44,7 @@ def unpack(source):
 
 def pack(source, translated_texts):
     source_dict = OrderedDict(read_php(source, variable='data'))
-    dest_dict = dict(pack_text_to_dict(source_dict.copy(), translated_texts))
+    dest_dict = dict(pack_text_to_dict(deepcopy(source_dict), translated_texts))
     return generate_php(dest_dict, modern=True)
 
 __all__ = ['pack', 'unpack']
